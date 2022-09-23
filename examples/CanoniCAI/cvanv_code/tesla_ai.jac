@@ -1,4 +1,4 @@
-import {*} with "./faq.jac";
+import {*} with "faq.jac";
 node cai_state {
     has name;
     can init_wlk_ctx {

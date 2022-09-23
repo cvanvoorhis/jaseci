@@ -95,10 +95,49 @@ walker ingest_faq {
     }
 }
 
+walker talk {
+    has question, interactive = false;
+    has wlk_ctx = {
+        "intent": null,
+        "entities": {},
+        "prev_state": null,
+        "next_state": null,
+        "respond": false
+    };
+    has response;
+    root {
+        take --> node::dialogue_root;
+    }
+    cai_state {
+        if (!question and interactive) {
+            question = std.input("Question (Ctrl-C to exit)> ");
+            here::init_wlk_ctx;
+        } elif (!question and !interactive){
+            std.err("ERROR: question is required for non-interactive mode");
+            disengage;
+        }
+        here::nlu;
+        here::process;
+        if (visitor.wlk_ctx["respond"]) {
+            here::nlg;
+            if (interactive): std.out(response);
+            else {
+                yield report response;
+                here::init_wlk_ctx;
+            }
+            question = null;
+            take here;
+        } else {
+            take visitor.wlk_ctx["next_state"] else: take here;
+        }
+    }
+}
+
 walker init {
     root {
         spawn here --> node::faq_root;
         spawn here walker::ingest_faq(kb_file="tesla_faq.json");
         spawn here walker::ask;
+        spawn here walker::talk;
     }
 }
