@@ -96,7 +96,7 @@ walker ingest_faq {
 }
 
 walker talk {
-    has question, interactive = false;
+    has question, interactive = true;
     has wlk_ctx = {
         "intent": null,
         "entities": {},
@@ -138,6 +138,5 @@ walker init {
         spawn here --> node::faq_root;
         spawn here walker::ingest_faq(kb_file="tesla_faq.json");
         spawn here walker::ask;
-        spawn here walker::talk;
     }
 }
